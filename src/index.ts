@@ -56,6 +56,10 @@ async function main() {
     const token = tokens[index];
     const walletsList = wallets[index];
 
+    const successfulAirdrops = await client.sMembers(
+      `${SUCCESS_KEY}:${token.toBase58()}`
+    );
+
     logger.info(
       `Begin airdrop of Phase ${index + 1} ${token.toBase58()} to ${
         walletsList.length
@@ -64,10 +68,6 @@ async function main() {
 
     for (let index = 0; index < walletsList.length; index++) {
       const [wallet, amount] = walletsList[index];
-
-      const successfulAirdrops = await client.sMembers(
-        `${SUCCESS_KEY}:${token.toBase58()}`
-      );
 
       if (successfulAirdrops.includes(wallet.toBase58())) {
         logger.info(
