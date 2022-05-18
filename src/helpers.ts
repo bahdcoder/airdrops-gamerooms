@@ -1,9 +1,5 @@
 import Fs from "fs";
 import Path from "path";
-import {
-  getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
-} from "@solana/spl-token";
 import { Connection, Keypair } from "@solana/web3.js";
 
 export function getEnv() {

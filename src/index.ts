@@ -3,8 +3,6 @@ import { logger } from "@poppinss/cliui";
 import { PublicKey } from "@solana/web3.js";
 import { getConnection, getWallets } from "./helpers";
 
-import whitelist from "./data/whitelist.json";
-import tokenPerOwner from "./data/tokenPerOwner.json";
 import {
   getAssociatedTokenAddress,
   getOrCreateAssociatedTokenAccount,
@@ -14,15 +12,30 @@ import {
 const SUCCESS_KEY = "airdrops:success";
 const FAILURE_KEY = "airdrops:failures";
 
+function getWl() {
+  const name = process.argv[2];
+
+  return require(`./data/${name}`);
+}
+
+function getTokenPerOwner() {
+  const name = process.argv[3];
+
+  return require(`./data/${name}`);
+}
+
+const whitelist = getWl();
+const tokenPerOwner = getTokenPerOwner();
+
 function parsePhaseOneWalletsAndAmounts(): [PublicKey, number][] {
-  return tokenPerOwner.map((owner) => [
+  return tokenPerOwner.map((owner: any) => [
     new PublicKey(owner.owner),
     owner.total,
   ]);
 }
 
 function parsePhaseThreeWalletsAndAmounts(): [PublicKey, number][] {
-  return whitelist.map((wl) => [new PublicKey(wl.wallet), 1]);
+  return whitelist.map((wl: any) => [new PublicKey(wl.wallet), 1]);
 }
 
 async function main() {
@@ -43,10 +56,6 @@ async function main() {
     const token = tokens[index];
     const walletsList = wallets[index];
 
-    const successfulAirdrops = await client.sMembers(
-      `${SUCCESS_KEY}:${token.toBase58()}`
-    );
-
     logger.info(
       `Begin airdrop of Phase ${index + 1} ${token.toBase58()} to ${
         walletsList.length
@@ -55,6 +64,10 @@ async function main() {
 
     for (let index = 0; index < walletsList.length; index++) {
       const [wallet, amount] = walletsList[index];
+
+      const successfulAirdrops = await client.sMembers(
+        `${SUCCESS_KEY}:${token.toBase58()}`
+      );
 
       if (successfulAirdrops.includes(wallet.toBase58())) {
         logger.info(
