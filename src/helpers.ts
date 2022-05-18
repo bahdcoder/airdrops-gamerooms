@@ -38,7 +38,7 @@ export function getConnection() {
   const { clusterUrl } = getEnv();
 
   const connection = new Connection(clusterUrl, {
-    commitment: "confirmed",
+    commitment: "finalized",
   });
 
   return {
